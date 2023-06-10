@@ -82,7 +82,30 @@ def terminal_to_markdown(text):
     text = text.replace("\n", "<br>\n")
     # return text
     return remove_ansi_control_codes(text)
-    
+
+def parse_gpt_json(answer):
+    answer = answer.replace("Answer format:", "")
+
+    try:
+        return json.loads(answer)
+    except:
+        # Look for JSON using a regular expression:
+        json_match = re.search(r'\{.*?\}', answer)
+
+        if json_match:
+            # If a match is found, extract it:
+            json_str = json_match.group()
+            
+            # Parse JSON into a Python dictionary:
+            json_obj = json.loads(json_str)
+            
+            print(json_obj)
+
+            return json_obj
+        else:
+            print("No JSON found in text")
+            return None
+
 def ask_gpt(question):
     print("::::::::::::::::::::")
     print(question)
@@ -376,9 +399,9 @@ Result:
 {result}
 """)
     
-                gpt_thoughts = gpt_thoughts.replace('Answer format:', '')
+                # gpt_thoughts = gpt_thoughts.replace('Answer format:', '')
                 gpt_info = None
-                gpt_info = json.loads(gpt_thoughts)
+                gpt_info = parse_gpt_json(gpt_thoughts)
                 break
             except Exception as e:
                 print(e)
@@ -402,15 +425,19 @@ Respond in JSON format only. When I issue the command '{command}' on a mac in th
         {result}
 """)
 
-                gpt_host_thoughts = gpt_host_thoughts.replace('Answer format:', '')
+                # gpt_host_thoughts = gpt_host_thoughts.replace('Answer format:', '')
 
                 gpt_host_info = None
-                gpt_host_info = json.loads(gpt_host_thoughts)
+                gpt_host_info = parse_gpt_json(gpt_host_thoughts)
                 break
             except Exception as e:
                 print(e)
                 time.sleep(1)
         
+        print("DOING A THING")
+        print(gpt_host_info)
+        print("DOING A THING")
+
         if "host" in gpt_host_info:
             hostname = gpt_host_info["host"]
             ip_address = gpt_host_info["ip_address"]
@@ -494,14 +521,14 @@ Summarise the following information about a computer system with hostname '{host
         if len(miro_content_left) <= 0 or miro_content_left == '':
             continue
 
-        (left_widget_id, left_widget_x, left_widget_width) = make_text_widget(board_id, data["command_frame_widget_id"], miro_content_left, 500, data['command_x'], data['gpt_y'], font_size)
-        (gpt_widget_id, gpt_widget_x, gpt_widget_width) = make_text_widget(board_id, data["command_frame_widget_id"], miro_content_gpt_thoughts, 1000, left_widget_x + (1000/2), data['gpt_y'], font_size)
-        (gpt_2_widget_id, gpt_2_widget_x, right_2_widget_width) = make_text_widget(board_id, data["command_frame_widget_id"], miro_content_gpt_host_thoughts, 250, gpt_widget_x + (250/2), data['gpt_y'], font_size)
-        (right_widget_id, right_widget_x, right_widget_width) = make_text_widget(board_id, data["command_frame_widget_id"], miro_content_right, 1500, gpt_2_widget_x + (1500/2), data['gpt_y'], font_size)
+        # (left_widget_id, left_widget_x, left_widget_width) = make_text_widget(board_id, data["command_frame_widget_id"], miro_content_left, 500, data['command_x'], data['gpt_y'], font_size)
+        # (gpt_widget_id, gpt_widget_x, gpt_widget_width) = make_text_widget(board_id, data["command_frame_widget_id"], miro_content_gpt_thoughts, 1000, left_widget_x + (1000/2), data['gpt_y'], font_size)
+        # (gpt_2_widget_id, gpt_2_widget_x, right_2_widget_width) = make_text_widget(board_id, data["command_frame_widget_id"], miro_content_gpt_host_thoughts, 250, gpt_widget_x + (250/2), data['gpt_y'], font_size)
+        # (right_widget_id, right_widget_x, right_widget_width) = make_text_widget(board_id, data["command_frame_widget_id"], miro_content_right, 1500, gpt_2_widget_x + (1500/2), data['gpt_y'], font_size)
 
-        connect_widgets(board_id, left_widget_id, gpt_widget_id)
-        connect_widgets(board_id, gpt_widget_id, gpt_2_widget_id)
-        connect_widgets(board_id, gpt_2_widget_id, right_widget_id)
+        # connect_widgets(board_id, left_widget_id, gpt_widget_id)
+        # connect_widgets(board_id, gpt_widget_id, gpt_2_widget_id)
+        # connect_widgets(board_id, gpt_2_widget_id, right_widget_id)
 
         # data['command_y'] += font_size + 2
 
